@@ -1,9 +1,10 @@
-# this file can be for building the inverted index
+# this file is for building the inverted index
 
 import nltk
 from nltk.corpus import stopwords
 from collections import Counter
 from collections import defaultdict
+from pathlib import Path
 
 nltk.download('stopwords')
 nltk.download('punkt_tab')
@@ -27,7 +28,9 @@ def tokenize_files(text):
     return nltk.tokenize.word_tokenize(text, "english", False)
 
 
-''' Clean documents '''
+''' Clean documents 
+    Args:
+        tokens: uncleaned tokens (lst)'''
 
 
 def clean_documents(tokens):
@@ -42,27 +45,45 @@ def clean_documents(tokens):
     return tokens
 
 
-''' add book to term document matrix '''
+''' add book to term document matrix 
+    Args: 
+        cleaned_tokens: set of cleaned tokens (lst)
+        doc_id: id of the document to store (int)
+        index: matrix to store the book in (dict)'''
 
 
-def add_book(cleaned_tokens, doc_id):
+def add_book(cleaned_tokens, doc_id, index):
     # go through words, calculate tf, add the word to the dictionary, store id and tf in the postings
-    index = defaultdict(dict)
 
     counts = Counter(cleaned_tokens)
 
     for term, tf in counts.items():
-        index[term][doc_id] = tf
 
-    return index
+        if term not in index:
+            index[term] = {
+                "df": 0,
+                "postings": {}
+            }
+
+        index[term]["postings"][doc_id] = tf
+        index[term]["df"] += 1
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    doc = read_files("documents/hamlet.txt")
-    tokens = clean_documents(tokenize_files(doc))
-    print(tokens)
+    # create the inverted index
+    index = defaultdict(dict)
 
-    print(add_book(tokens, 0))
+    data_path = Path("documents")
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    for file_path in data_path.glob("*.txt"):
+        with open(file_path, "r", encoding="utf-8") as f:
+            text = f.read()
+
+            # tokenize
+            tokens = clean_documents(tokenize_files(text))
+            # add the terms
+            add_book(tokens, 0, index)
+
+
+
