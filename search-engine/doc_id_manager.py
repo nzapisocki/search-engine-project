@@ -1,28 +1,35 @@
-# this file will create a map of file names to docIDs
-
 from pathlib import Path
-from collections import defaultdict
 import json
 
-''' Add a new file to the id map
-    Args:
-        id_map: the map
-        file_name: name of the file to map'''
 
+class DocIdManager:
+    def __init__(self, map_file="id_map/id_map.json"):
+        self.map_file = Path(map_file)
+        self.id_map = self.load()
 
-def add_file(id_map, file_name):
-    if file_name not in id_map:
-        doc_id = max(id_map.values(), default=-1) + 1
-        id_map[file_name] = doc_id
+    def load(self):
+        if self.map_file.exists():
+            with open(self.map_file, "r") as f:
+                return json.load(f)
+        return {}
 
+    def save(self):
+        self.map_file.parent.mkdir(parents=True, exist_ok=True)
 
-if __name__ == '__main__':
-    data_path = Path("documents")
+        with open(self.map_file, "w") as f:
+            json.dump(self.id_map, f, indent=4)
 
-    doc_id_map = defaultdict(dict)
+    def add_file(self, file_name):
+        if file_name not in self.id_map:
+            new_id = max(self.id_map.values(), default=-1) + 1
+            self.id_map[file_name] = new_id
+            self.save()
 
-    for file_path in data_path.glob("*txt"):
-        add_file(doc_id_map, file_path.name)
+        return self.id_map[file_name]
 
-    with open("id_map/id_map.json", "w") as f:
-        json.dump(doc_id_map, f, indent=4)
+    def build_map(self, documents_path="documents"):
+        for file_path in Path(documents_path).glob("*.txt"):
+            self.add_file(file_path.name)
+
+    def get_id(self, file_name):
+        return self.id_map[file_name]

@@ -3,8 +3,10 @@
 import nltk
 from nltk.corpus import stopwords
 from collections import Counter
-from collections import defaultdict
 from pathlib import Path
+import json
+
+from doc_id_manager import DocIdManager
 
 nltk.download('stopwords')
 nltk.download('punkt_tab')
@@ -69,21 +71,49 @@ def add_book(cleaned_tokens, doc_id, index):
         index[term]["df"] += 1
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    # create the inverted index
-    index = defaultdict(dict)
+def build_index():
+
+
+    # load the map
+    manager = DocIdManager()
+    id_map = manager.id_map
+
+    # load the index
+    index_path = Path("index/index.json")
+
+    if index_path.exists():
+        with open(index_path, "r") as f:
+            index = json.load(f)
+    else:
+        index = {}
 
     data_path = Path("documents")
 
     for file_path in data_path.glob("*.txt"):
-        with open(file_path, "r", encoding="utf-8") as f:
-            text = f.read()
+
+        if file_path.name not in id_map:
+            # add document to map
+            doc_id = manager.add_file(file_path.name)
+
+            # load document
+            doc = read_files(file_path)
 
             # tokenize
-            tokens = clean_documents(tokenize_files(text))
-            # add the terms
-            add_book(tokens, 0, index)
+            tokens = tokenize_files(doc)
+
+            # clean
+            cleaned_tokens = clean_documents(tokens)
+
+            # add to index
+            add_book(cleaned_tokens, doc_id, index)
+
+    # save updated index
+    index_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(index_path, "w") as f:
+        json.dump(index, f, indent=4)
 
 
-
+# Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+    build_index()
