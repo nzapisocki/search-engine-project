@@ -11,9 +11,9 @@ from doc_id_manager import DocIdManager
 nltk.download('stopwords')
 nltk.download('punkt_tab')
 
-''' read the text file in as a string 
-    args: 
-        file_name: name of the file (str)'''
+""" read the text file in as a string
+        args:
+            file_name: name of the file (str)"""
 
 
 def read_files(file_path):
@@ -22,8 +22,8 @@ def read_files(file_path):
 
 
 ''' tokenize the files
-    Args:
-        text: the text to tokenize (str)'''
+        Args:
+            text: the text to tokenize (str)'''
 
 
 def tokenize_files(text):
@@ -31,8 +31,8 @@ def tokenize_files(text):
 
 
 ''' Clean documents 
-    Args:
-        tokens: uncleaned tokens (lst)'''
+        Args:
+            tokens: uncleaned tokens (lst)'''
 
 
 def clean_documents(tokens):
@@ -48,10 +48,10 @@ def clean_documents(tokens):
 
 
 ''' add book to term document matrix 
-    Args: 
-        cleaned_tokens: set of cleaned tokens (lst)
-        doc_id: id of the document to store (int)
-        index: matrix to store the book in (dict)'''
+        Args: 
+            cleaned_tokens: set of cleaned tokens (lst)
+            doc_id: id of the document to store (int)
+            index: matrix to store the book in (dict)'''
 
 
 def add_book(cleaned_tokens, doc_id, index):
@@ -71,49 +71,66 @@ def add_book(cleaned_tokens, doc_id, index):
         index[term]["df"] += 1
 
 
-def build_index():
+''' Handle interaction with the index '''
 
 
-    # load the map
-    manager = DocIdManager()
-    id_map = manager.id_map
+class IndexManager:
+    _instance = None
+    _initialized = False
 
-    # load the index
-    index_path = Path("index/index.json")
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
-    if index_path.exists():
-        with open(index_path, "r") as f:
-            index = json.load(f)
-    else:
-        index = {}
+    def __init__(self):
 
-    data_path = Path("documents")
+        if self._initialized:
+            return
 
-    for file_path in data_path.glob("*.txt"):
+        self.index_path = Path("index/index.json")
 
-        if file_path.name not in id_map:
-            # add document to map
-            doc_id = manager.add_file(file_path.name)
+        if self.index_path.exists():
+            with open(self.index_path, "r") as f:
+                self.index = json.load(f)
+        else:
+            self.index = {}
 
-            # load document
-            doc = read_files(file_path)
+        self._initialized = True
 
-            # tokenize
-            tokens = tokenize_files(doc)
+    ''' Build the index from local files. Only adds new files. '''
 
-            # clean
-            cleaned_tokens = clean_documents(tokens)
+    def build_index(self):
 
-            # add to index
-            add_book(cleaned_tokens, doc_id, index)
+        # load the map
+        manager = DocIdManager()
+        id_map = manager.id_map
 
-    # save updated index
-    index_path.parent.mkdir(parents=True, exist_ok=True)
+        data_path = Path("documents")
 
-    with open(index_path, "w") as f:
-        json.dump(index, f, indent=4)
+        for file_path in data_path.glob("*.txt"):
 
+            if file_path.name not in id_map:
+                # add document to map
+                doc_id = manager.add_file(file_path.name)
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    build_index()
+                # load document
+                doc = read_files(file_path)
+
+                # tokenize
+                tokens = tokenize_files(doc)
+
+                # clean
+                cleaned_tokens = clean_documents(tokens)
+
+                # add document to index
+                add_book(cleaned_tokens, doc_id, self.index)
+
+        # save updated index
+        self.index_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(self.index_path, "w") as f:
+            json.dump(self.index, f, indent=4)
+
+    def get_index(self):
+        return self.index
