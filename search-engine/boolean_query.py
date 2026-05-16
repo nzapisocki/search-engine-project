@@ -2,6 +2,10 @@ class BooleanQuery:
     """ Boolean AND. Returns the documents that contain both terms """
 
     def boolean_and(self, term1, term2, index):
+
+        if term1 not in index or term2 not in index:
+            raise Exception("One or more of the term(s) was not found!")
+
         postings1 = list(index[term1]["postings"].keys())
         postings2 = list(index[term2]["postings"].keys())
 
