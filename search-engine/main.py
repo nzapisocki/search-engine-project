@@ -7,9 +7,10 @@ from build_index import IndexManager
 
 def main():
     index_manager = IndexManager()
-    # print(index_manager.get_index())
+
     boolean_query = BooleanQuery()
-    print(boolean_query.boolean_and("will", "want", index_manager.get_index()))
+
+
 
 
 if __name__ == "__main__":
