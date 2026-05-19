@@ -33,3 +33,6 @@ class DocIdManager:
 
     def get_id(self, file_name):
         return self.id_map[file_name]
+
+    def get_all_id(self):
+        return list(self.id_map.values())

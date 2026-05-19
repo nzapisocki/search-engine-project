@@ -98,7 +98,7 @@ class IndexManager:
 
         self._initialized = True
 
-    ''' Build the index from local files. Only adds new files. '''
+    ''' Build the index from local files. Only adds new files, updates the map file. '''
 
     def build_index(self):
 
@@ -134,3 +134,6 @@ class IndexManager:
 
     def get_index(self):
         return self.index
+
+    def get_term_vector(self, term):
+        return list(self.index[term]["postings"].keys())
