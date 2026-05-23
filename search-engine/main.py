@@ -10,6 +10,10 @@ def main():
 
     boolean_query = BooleanQuery()
 
+    query = "(willing :and: die) :or: dust"
+    tokenized_query = boolean_query.tokenize_boolean_query(query)
+
+    print(boolean_query.answer(tokenized_query))
 
 
 if __name__ == "__main__":

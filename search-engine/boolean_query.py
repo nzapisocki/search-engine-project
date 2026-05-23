@@ -87,6 +87,59 @@ class BooleanQuery:
         # return the full docID set minus the term set
         return all_docs - term_set
 
+    """ Tokenize a boolean query 
+        :arg
+            query: string"""
+
+    def tokenize_boolean_query(self, query):
+        # 1. Properly reassign the stripped query
+        query = query.strip()
+        tokenized_query = []
+
+        i = 0
+        # 2. Loop through the entire length of the query
+        while i < len(query):
+            token = query[i]
+
+            # Handle parentheses
+            if token == "(" or token == ")":
+                tokenized_query.append(token)
+                i += 1
+
+            # Handle operators/fields bounded by colons (e.g., :AND: or field:)
+            elif token == ":":
+                operator = ":"
+                i += 1  # Move past the opening colon
+
+                # Read until the next colon or end of string
+                while i < len(query) and query[i] != ":":
+                    operator += query[i]
+                    i += 1
+
+                if i < len(query):  # Append the closing colon if it exists
+                    operator += query[i]
+                    i += 1
+
+                tokenized_query.append(operator)
+
+            # Handle regular terms/words
+            else:
+                term = ""
+                # Read characters until we hit a special character or space
+                while i < len(query) and query[i] not in ["(", ")", ":", " "]:
+                    term += query[i]
+                    i += 1
+
+                # Only append if we actually collected characters (skips spaces)
+                if term:
+                    tokenized_query.append(term)
+
+                # If the loop stopped on a space, skip past it
+                if i < len(query) and query[i] == " ":
+                    i += 1
+
+        return tokenized_query
+
     """ Solves a tokenized boolean query. Returns a set of docIDs
     which satisfies the query conditions."""
 
