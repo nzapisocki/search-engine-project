@@ -79,13 +79,12 @@ class BooleanQuery:
     """ Boolean NOT. Returns the docIDs that do not contain a term.
         :arg term: the term to NOT"""
 
-    def boolean_not(self, term):
-        # get all docID's from the map file
-        all_docs = self.doc_id_manager.get_all_id()
-        # get the term docIDs from the index
-        term_set = self.index_manager.get_term_vector()
-        # return the full docID set minus the term set
-        return all_docs - term_set
+    def boolean_not(self, term_vector):
+
+        all_docs = set(self.doc_id_manager.get_all_id())
+        term_docs = set(term_vector)
+
+        return sorted(all_docs - term_docs)
 
     """ Tokenize a boolean query 
         :arg
@@ -120,6 +119,7 @@ class BooleanQuery:
                     operator += query[i]
                     i += 1
 
+                operator = operator.lower()
                 tokenized_query.append(operator)
 
             # Handle regular terms/words
@@ -158,16 +158,16 @@ class BooleanQuery:
                 v = self.index_manager.get_term_vector(token)  # lookup the term vector
                 stack.append(v)
 
-        return stack
+        return stack.pop()
 
     """ Helper function for answer. Solves the subexpression at a given level
-    of a boolean query."""
+    of a boolean query. Simple AND OR NOT statements. Ex. (t1 :and: t2)"""
 
     def solveExpression(self, stack):
         answer = stack.pop()
         token = stack.pop()
 
-        while token != ")":
+        while token != "(":
             if token == ":not:":
                 answer = self.boolean_not(answer)
             if token == ":and:":
