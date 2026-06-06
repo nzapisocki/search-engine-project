@@ -10,7 +10,7 @@ def main():
 
     boolean_query = BooleanQuery()
 
-    query = "(willing :and: die)"
+    query = "(willing)"
     tokenized_query = boolean_query.tokenize_boolean_query(query)
 
     print(tokenized_query)

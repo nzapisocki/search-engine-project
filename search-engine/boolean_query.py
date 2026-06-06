@@ -12,7 +12,8 @@ class BooleanQuery:
         :arg doc_vec2: document vector for term2 (lst)
         :returns intersection list of the document vectors (lst) """
 
-    def boolean_and(self, doc_vec1, doc_vec2):
+    @staticmethod
+    def boolean_and(doc_vec1, doc_vec2):
 
         intersection = []
 
@@ -41,7 +42,8 @@ class BooleanQuery:
             :arg doc_vec2: document vector for term2 (lst)
             :returns union list of the document vectors (lst) """
 
-    def boolean_or(self, doc_vec1, doc_vec2):
+    @staticmethod
+    def boolean_or(doc_vec1, doc_vec2):
 
         union = []
 
