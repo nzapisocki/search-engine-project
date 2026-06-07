@@ -92,7 +92,8 @@ class BooleanQuery:
         :arg
             query: string"""
 
-    def tokenize_boolean_query(self, query):
+    @staticmethod
+    def tokenize_boolean_query(query):
         # 1. Properly reassign the stripped query
         query = query.strip()
         tokenized_query = []

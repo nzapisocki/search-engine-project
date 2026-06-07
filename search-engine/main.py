@@ -7,14 +7,12 @@ from build_index import IndexManager
 
 def main():
     index_manager = IndexManager()
-
     boolean_query = BooleanQuery()
 
-    query = "(willing)"
+    query = "(ingram)"
     tokenized_query = boolean_query.tokenize_boolean_query(query)
 
     print(tokenized_query)
-
     print(boolean_query.answer(tokenized_query))
 
 

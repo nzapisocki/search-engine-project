@@ -33,5 +33,13 @@ def test_boolean_or():
     assert BooleanQuery.boolean_or(docVec1, docVec2) == []
 
 
+def test_tokenize_query():
+    query = "(testing    :and: fallout)  "
+    tokenized_query = ["(", "testing", ":and:", "fallout", ")"]
+    assert BooleanQuery.tokenize_boolean_query(query) == tokenized_query
+
+
 if __name__ == "__main__":
     test_boolean_and()
+    test_boolean_or()
+    test_tokenize_query()
