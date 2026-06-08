@@ -11,66 +11,6 @@ from doc_id_manager import DocIdManager
 nltk.download('stopwords')
 nltk.download('punkt_tab')
 
-""" read the text file in as a string
-        args:
-            file_name: name of the file (str)"""
-
-
-def read_files(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        return file.read()
-
-
-''' tokenize the files
-        Args:
-            text: the text to tokenize (str)'''
-
-
-def tokenize_files(text):
-    return nltk.tokenize.word_tokenize(text, "english", False)
-
-
-''' Clean documents 
-        Args:
-            tokens: uncleaned tokens (lst)'''
-
-
-def clean_documents(tokens):
-    # get english stop words
-    stop_words = set(stopwords.words('english'))
-
-    # clean documents
-    tokens = [t.lower() for t in tokens]
-    tokens = [t for t in tokens if t.isalpha()]
-    tokens = [t for t in tokens if t not in stop_words]
-
-    return tokens
-
-
-''' add book to term document matrix 
-        Args: 
-            cleaned_tokens: set of cleaned tokens (lst)
-            doc_id: id of the document to store (int)
-            index: matrix to store the book in (dict)'''
-
-
-def add_book(cleaned_tokens, doc_id, index):
-    # go through words, calculate tf, add the word to the dictionary, store id and tf in the postings
-
-    counts = Counter(cleaned_tokens)
-
-    for term, tf in counts.items():
-
-        if term not in index:
-            index[term] = {
-                "df": 0,
-                "postings": {}
-            }
-
-        index[term]["postings"][doc_id] = tf
-        index[term]["df"] += 1
-
-
 ''' Handle interaction with the index '''
 
 
@@ -98,6 +38,62 @@ class IndexManager:
 
         self._initialized = True
 
+    """ read the text file in as a string
+            args:
+                file_name: name of the file (str)"""
+
+    @staticmethod
+    def read_files(file_path):
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
+
+    ''' tokenize the files
+            Args:
+                text: the text to tokenize (str)'''
+
+    @staticmethod
+    def tokenize_files(text):
+        return nltk.tokenize.word_tokenize(text, "english", False)
+
+    ''' Clean documents 
+            Args:
+                tokens: uncleaned tokens (lst)'''
+
+    @staticmethod
+    def clean_documents(tokens):
+        # get english stop words
+        stop_words = set(stopwords.words('english'))
+
+        # clean documents
+        tokens = [t.lower() for t in tokens]
+        tokens = [t for t in tokens if t.isalpha()]
+        tokens = [t for t in tokens if t not in stop_words]
+
+        return tokens
+
+    ''' add book to term document matrix 
+            Args: 
+                cleaned_tokens: set of cleaned tokens (lst)
+                doc_id: id of the document to store (int)
+                index: matrix to store the book in (dict)'''
+
+    @staticmethod
+    def add_book(cleaned_tokens, doc_id, index):
+        # go through words, calculate tf, add the word to the dictionary, store id and tf in the postings
+
+        counts = Counter(cleaned_tokens)
+
+        for term, tf in counts.items():
+
+            if term not in index:
+                index[term] = {
+                    "df": 0,
+                    "postings": {}
+                }
+
+            index[term]["postings"][doc_id] = tf
+            index[term]["df"] += 1
+
     ''' Build the index from local files. Only adds new files, updates the map file. '''
 
     def build_index(self):
@@ -115,16 +111,16 @@ class IndexManager:
                 doc_id = manager.add_file(file_path.name)
 
                 # load document
-                doc = read_files(file_path)
+                doc = self.read_files(file_path)
 
                 # tokenize
-                tokens = tokenize_files(doc)
+                tokens = self.tokenize_files(doc)
 
                 # clean
-                cleaned_tokens = clean_documents(tokens)
+                cleaned_tokens = self.clean_documents(tokens)
 
                 # add document to index
-                add_book(cleaned_tokens, doc_id, self.index)
+                self.add_book(cleaned_tokens, doc_id, self.index)
 
         # save updated index
         self.index_path.parent.mkdir(parents=True, exist_ok=True)

@@ -3,6 +3,13 @@ import json
 
 
 class DocIdManager:
+    instance = None
+
+    def __new__(cls):
+        if cls.instance is None:
+            cls.instance = super().__new__(cls)
+        return cls.instance
+
     def __init__(self, map_file="id_map/id_map.json"):
         self.map_file = Path(map_file)
         self.id_map = self.load()
