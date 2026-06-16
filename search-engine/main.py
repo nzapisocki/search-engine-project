@@ -2,7 +2,7 @@
 Created by nzapi on 2026-05-14
 """
 from boolean_query import BooleanQuery
-from build_index import IndexManager
+from index_manager import IndexManager
 
 
 def main():

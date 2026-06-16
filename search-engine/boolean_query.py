@@ -1,11 +1,11 @@
-from build_index import IndexManager
+from index_manager import IndexManager
 from doc_id_manager import DocIdManager
 
 
 class BooleanQuery:
-    def __init__(self):
-        self.index_manager = IndexManager()
-        self.doc_id_manager = DocIdManager()
+    def __init__(self, doc_id_manager, index_manager):
+        self.index_manager = index_manager
+        self.doc_id_manager = doc_id_manager
 
     """ Boolean AND. Returns a set of documents that contain both terms
         :arg doc_vec1: document vector for term1 (lst)
