@@ -130,7 +130,7 @@ class BooleanQuery:
                 term = ""
                 # Read characters until we hit a special character or space
                 while i < len(query) and query[i] not in ["(", ")", ":", " "]:
-                    term += query[i]
+                    term += query[i].lower()
                     i += 1
 
                 # Only append if we actually collected characters (skips spaces)
